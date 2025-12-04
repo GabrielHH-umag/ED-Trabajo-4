@@ -50,14 +50,14 @@ void char_a_index(const char* c, int* index)
 {
     if(*c < 'A' || *c > 'Z') 
     {
-        *index = -1; // Carácter inválido
+        *index = -1; // Caracter inválido
         return;
     }
-    *index = (int)(c[0] - 'A'); // Convierte 'A' a 0, 'B' a 1, etc.
+    *index = (int)(c[0] - 'A'); // Convierte 'A' a 0, 'B' a 1
 }
 char index_a_char(int index)
 {
-    // Mapea 0 -> 'A', 1 -> 'B', 2 -> 'C', etc.
+    // Mapea 0 -> 'A', 1 -> 'B', 2 -> 'C'
     if (index >= 0 && index < 26) 
     {
         return (char)('A' + index); 

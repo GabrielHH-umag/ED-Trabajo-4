@@ -50,6 +50,7 @@ int ejecutar_comando(Comando* c, Grafo* grafo)
     {
         printf("Accion '%s' no reconocida.\n", c->arg1);
     }
+    return 0;
 }
 
 //------------------- Implementaciones de comandos ------------------//

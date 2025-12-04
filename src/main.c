@@ -14,7 +14,7 @@ int main()
         if (ejecutar_comando(&c, &grafo) == -1) 
         {
             liberar_grafo(&grafo);
-            break; // Salir del bucle si el comando es 'exit'
+            break; // Salir del bucle si el comando es exit
         }
     }
     return 0;
