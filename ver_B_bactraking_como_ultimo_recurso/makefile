@@ -19,7 +19,7 @@ ifeq ($(OS),Windows_NT)
 # --- WINDOWS ---
 	ifeq ($(IS_MSYS2),)
 		# Windows CMD nativo
-		EXEC=adn.exe
+		EXEC=pvv.exe
 		TEST_EXEC=test.exe
 		SHELL := cmd.exe
 		RM = del /Q
@@ -29,7 +29,7 @@ ifeq ($(OS),Windows_NT)
 		RUNNER = CMD
 	else
 		# MSYS2 / MinGW
-		EXEC=adn.exe
+		EXEC=pvv.exe
 		TEST_EXEC=test.exe
 		SHELL := /usr/bin/bash
 		RM = rm -f
@@ -40,7 +40,7 @@ ifeq ($(OS),Windows_NT)
 	endif
 else
 	# --- LINUX / MAC ---
-	EXEC=adn
+	EXEC=pvv
 	TEST_EXEC=test
 	SHELL := /bin/sh
 	RM = rm -f
