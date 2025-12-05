@@ -1,0 +1,11 @@
+A B 10
+B C 12
+C D 8
+D E 7
+E F 11
+F G 15
+G A 9
+A C 25
+B E 18
+C F 5
+D G 30graph

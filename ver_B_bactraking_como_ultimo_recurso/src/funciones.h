@@ -48,12 +48,18 @@ int bienvenida()
 }
 void char_a_index(const char* c, int* index)
 {
-    if(*c < 'A' || *c > 'Z') 
+    if (*c >= 'A' && *c <= 'Z') 
+    {
+        *index = (int)(c[0] - 'A');
+    } 
+    else if (*c >= 'a' && *c <= 'z') 
+    {
+        *index = (int)(c[0] - 'a');
+    } 
+    else 
     {
         *index = -1; // Caracter inválido
-        return;
     }
-    *index = (int)(c[0] - 'A'); // Convierte 'A' a 0, 'B' a 1
 }
 char index_a_char(int index)
 {
@@ -106,30 +112,42 @@ Nodo* crear_nodo(int destino, int distancia)
 }
 int crear_camino_in_out(Grafo* grafo, int distancia, int origen, int destino)
 {
-    //Creamos un enlace desde el punto de origen hacia su destino
+    if (grafo == NULL) 
+    {
+        fprintf(stderr, "Error: grafo NULL en crear_camino_in_out.\n");
+        return -1;
+    }
+    if (origen < 0 || origen >= grafo->num_ciudades || destino < 0 || destino >= grafo->num_ciudades) 
+    {
+        fprintf(stderr, "Error: Indices fuera de rango: origen=%d destino=%d num_ciudades=%d\n", origen, destino, grafo->num_ciudades);
+        return -1;
+    }
     Nodo* link_origen_destino = crear_nodo(destino, distancia);
     if (link_origen_destino == NULL)
     {
         fprintf(stderr, "Error: Falla al crear el enlace de %d a %d.\n", origen, destino);
         return -1; // ERROR al crear el nodo
     }
-    //Insertamos el nodo al inicio de la lista de adyacencia del origen
     link_origen_destino->siguiente = grafo->listas_adyacencia[origen];
     grafo->listas_adyacencia[origen] = link_origen_destino;
-    //Creamos un enlace desde el punto de destino hacia su origen
+
     Nodo* link_destino_origen = crear_nodo(origen, distancia);
-    if (link_origen_destino == NULL)
+    if (link_destino_origen == NULL) 
     {
-        fprintf(stderr, "Error: Falla al crear el enlace de %d a %d.\n", origen, destino);
+        fprintf(stderr, "Error: Falla al crear el enlace de %d a %d.\n", destino, origen);
         return -1; // ERROR al crear el nodo
     }
-    //Insertamos el nodo al inicio de la lista de adyacencia del destino
     link_destino_origen->siguiente = grafo->listas_adyacencia[destino];
     grafo->listas_adyacencia[destino] = link_destino_origen;
     return 0;
 }
+
 int construir_grafo(Grafo* grafo, const char* txt)
 {
+    if (grafo == NULL || txt == NULL) {
+        fprintf(stderr, "Error: argumentos invalidos a construir_grafo.\n");
+        return -1;
+    }
     FILE* archivo = fopen(txt, "r");
     if (archivo == NULL) 
     {
@@ -138,11 +156,23 @@ int construir_grafo(Grafo* grafo, const char* txt)
     }
     char c_origen, c_destino;
     int origen, destino, distancia;
+    int linea = 0;
     while (fscanf(archivo, " %c %c %d", &c_origen, &c_destino, &distancia) == 3) 
     {
-        //cambiamos las letras a indices
         char_a_index(&c_origen, &origen);
         char_a_index(&c_destino, &destino);
+        if (origen == -1 || destino == -1) 
+        {
+            fprintf(stderr, "Error Linea %d: caracter de ciudad invalido: '%c' '%c'\n", linea, c_origen, c_destino);
+            fclose(archivo);
+            return -1;
+        }
+        if (origen < 0 || origen >= grafo->num_ciudades || destino < 0 || destino >= grafo->num_ciudades) 
+        {
+            fprintf(stderr, "Error Linea %d: indices fuera de rango (A->0): origen=%d destino=%d num_ciudades=%d\n", linea, origen, destino, grafo->num_ciudades);
+            fclose(archivo);
+            return -1;
+        }
         if (crear_camino_in_out(grafo, distancia, origen, destino) != 0) 
         {
             fclose(archivo);
@@ -196,7 +226,7 @@ int verificar_hamiltoniano(Grafo* grafo)
     }
     if(tiene_grado_invalido(grafo))
     {
-        printf("No existe un ciclo hamiltoniano en el grafo, ya que posee un nodo gon grado menor a 2.\n");
+        printf("No existe un ciclo hamiltoniano en el grafo, ya que posee un nodo con grado menor a 2.\n");
         return 0; // No existe ciclo hamiltoniano
     }
     if(condicion_necesaria_de_corte(grafo))

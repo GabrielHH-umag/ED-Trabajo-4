@@ -5,6 +5,7 @@ int leer_comandos(Comando* c);
 int ejecutar_comando(Comando* c, Grafo* grafo);
 void pvv_start(const char* arg, Grafo *grafo);
 void pvv_read(const char* arg, Grafo *grafo);
+void pvv_graph(Grafo *grafo);
 
 //------------------- Funciones para manejar comandos ------------------//
 
@@ -29,17 +30,26 @@ int ejecutar_comando(Comando* c, Grafo* grafo)
         printf("Comando no reconocido. Use 'pvv <accion>'.\n");
         return 1;
     } 
+    
     if (strcmp(c->arg1, "start") == 0) 
     {
+        if (c->arg2[0] == '\0') {
+            fprintf(stderr, "Error: Use 'pvv start <num_ciudades>'\n");
+            return 0;
+        }
         pvv_start(c->arg2, grafo);
     } 
     else if (strcmp(c->arg1, "read") == 0) 
     {
+        if (c->arg2[0] == '\0') {
+            fprintf(stderr, "Error: Use 'pvv read <archivo>'\n");
+            return 0;
+        }
         pvv_read(c->arg2, grafo);
     } 
     else if (strcmp(c->arg1, "graph") == 0) 
     {
-        //pvv_graph(c->arg2, grafo);
+        pvv_graph(grafo);
     } 
     else if (strcmp(c->arg1, "exit") == 0) 
     {
@@ -77,5 +87,36 @@ void pvv_read(const char* arg, Grafo *grafo)
         return; // ERROR
     }
     verificar_hamiltoniano(grafo);
+}
+void pvv_graph(Grafo *g)
+{
+    if (g == NULL || g->listas_adyacencia == NULL || g->num_ciudades <= 0) {
+        printf("No hay grafo creado. Use 'pvv start <num>' primero.\n");
+        return;
+    }
+
+    int n = g->num_ciudades;
+    int i, j;
+
+    printf("\nMatriz de adyacencia (%d nodos):\n", n);
+
+    printf("   ");
+    for (i = 0; i < n; i++) {
+        printf(" %c ", index_a_char(i));
+    }
+    printf("\n");
+
+    for (i = 0; i < n; i++) {
+        printf(" %c ", index_a_char(i));
+        for (j = 0; j < n; j++) {
+            int costo = ver_costo_ciudad(g, i, j);
+            if (costo == -1) {
+                printf(" - ");
+            } else {
+                printf("%2d ", costo);
+            }
+        }
+        printf("\n");
+    }
 }
 

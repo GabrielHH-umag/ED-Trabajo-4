@@ -50,8 +50,10 @@ else
 	RUNNER = UNIX
 endif
 
-all: folders $(BIN_DIR)/$(EXEC)
-	@echo "Proyecto compilado correctamente."
+.PHONY: all clean run
+
+all: clean folders $(BIN_DIR)/$(EXEC) run
+	@echo "Proyecto compilado y ejecutado correctamente."
 
 $(BIN_DIR)/$(EXEC): $(OBJ_FILES)
 	$(CC) $(CFLAGS) $(OBJ_FILES) -o $@ $(INCLUDE) $(LIBS) $(LDFLAGS)
@@ -99,7 +101,7 @@ endif
 	@echo "Archivos compilados eliminados."
 
 .PHONY: run
-run: all
+run: 
 ifeq ($(RUNNER),CMD)
 # Ejecutar en Windows CMD con rutas convertidas
 	@cmd /C "$(subst /,\\,$(BIN_DIR))\\$(EXEC)"
