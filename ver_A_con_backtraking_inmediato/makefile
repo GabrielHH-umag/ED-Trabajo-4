@@ -5,9 +5,10 @@ NTAR=3
 SRC_DIR=src
 OBJ_DIR=build/obj
 BIN_DIR=build/bin
+BUILD_DIR=build
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(SRC_FILES))
-INCLUDE=-I./$(INC_DIR)/
+INCLUDE=
 LIBS=
 
 CFLAGS=-Wall -Wextra -Wpedantic -O3
@@ -17,42 +18,39 @@ IS_MSYS2 := $(findstring MSYS,$(MSYSTEM))$(findstring MINGW,$(MSYSTEM))
 # Detectar OS
 ifeq ($(OS),Windows_NT)
 # --- WINDOWS ---
-	ifeq ($(IS_MSYS2),)
-		# Windows CMD nativo
-		EXEC=pvv.exe
-		TEST_EXEC=test.exe
-		SHELL := cmd.exe
-		RM = del /Q
-		RMDIR = rmdir /S /Q
-		MKDIR = if not exist
-		SEP = \\
-		RUNNER = CMD
-	else
-		# MSYS2 / MinGW
-		EXEC=pvv.exe
-		TEST_EXEC=test.exe
-		SHELL := /usr/bin/bash
-		RM = rm -f
-		RMDIR = rm -rf
-		MKDIR = mkdir -p
-		SEP = /
-		RUNNER = MSYS
-	endif
+ifeq ($(IS_MSYS2),)
+# Windows CMD nativo
+EXEC=pvv.exe
+SHELL := cmd.exe
+RM = del /Q
+RMDIR = rmdir /S /Q
+MKDIR = if not exist
+SEP = \\
+RUNNER = CMD
 else
-	# --- LINUX / MAC ---
-	EXEC=pvv
-	TEST_EXEC=test
-	SHELL := /bin/sh
-	RM = rm -f
-	RMDIR = rm -rf
-	MKDIR = mkdir -p
-	SEP = /
-	RUNNER = UNIX
+# MSYS2 / MinGW
+EXEC=pvv.exe
+SHELL := /usr/bin/bash
+RM = rm -f
+RMDIR = rm -rf
+MKDIR = mkdir -p
+SEP = /
+RUNNER = MSYS
+endif
+else
+# --- LINUX / MAC ---
+EXEC=pvv
+SHELL := /bin/sh
+RM = rm -f
+RMDIR = rm -rf
+MKDIR = mkdir -p
+SEP = /
+RUNNER = UNIX
 endif
 
-.PHONY: all clean run
+.PHONY: all
 
-all: clean folders $(BIN_DIR)/$(EXEC) run
+all: folders $(BIN_DIR)/$(EXEC)
 	@echo "Proyecto compilado y ejecutado correctamente."
 
 $(BIN_DIR)/$(EXEC): $(OBJ_FILES)
@@ -67,36 +65,42 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | folders
 .PHONY: folders
 folders:
 ifeq ($(OS),Windows_NT)
-    ifeq ($(IS_MSYS2),)
-        # Windows CMD nativo
-	@if not exist $(SRC_DIR) mkdir $(SRC_DIR)
-	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
-    else
-        # MSYS2 / MinGW
-	@mkdir -p $(SRC_DIR) $(OBJ_DIR) $(BIN_DIR) $(INC_DIR) $(DOCS_DIR) $(TEST_DIR)
-    endif
+ifeq ($(IS_MSYS2),)
+	@if not exist "$(SRC_DIR)" mkdir "$(SRC_DIR)"
+	@if not exist "$(OBJ_DIR)" mkdir "$(OBJ_DIR)"
+	@if not exist "$(BIN_DIR)" mkdir "$(BIN_DIR)"
 else
-    # Linux / Mac
-	@mkdir -p $(SRC_DIR) $(OBJ_DIR) $(BIN_DIR) $(INC_DIR) $(DOCS_DIR) $(TEST_DIR)
+	@mkdir -p $(SRC_DIR) $(OBJ_DIR) $(BIN_DIR)
+endif
+else
+	@mkdir -p $(SRC_DIR) $(OBJ_DIR) $(BIN_DIR)
 endif
 	@echo "Directorios creados."
+
 .PHONY: clean
 clean:
 ifeq ($(OS),Windows_NT)
 ifeq ($(IS_MSYS2),)
 # --- Windows CMD ---
-	-$(RM) $(OBJ_DIR)$(SEP)*.o >nul 2>&1
-	-$(RM) $(BIN_DIR)$(SEP)$(EXEC) >nul 2>&1
+	-$(RM) "$(OBJ_DIR)$(SEP)*.o" >nul 2>&1 || true
+	-$(RM) "$(BIN_DIR)$(SEP)$(EXEC)" >nul 2>&1 || true
+	@if exist "$(BIN_DIR)" rmdir /S /Q "$(BIN_DIR)" >nul 2>&1 || true
+	@if exist "$(OBJ_DIR)" rmdir /S /Q "$(OBJ_DIR)" >nul 2>&1 || true
 else
 # --- MSYS2 / MinGW ---
 	-$(RM) $(OBJ_FILES)
 	-$(RM) $(BIN_DIR)/$(EXEC)
+	-$(RMDIR) $(OBJ_DIR) || true
+	-$(RMDIR) $(BIN_DIR) || true
+	-$(RMDIR) $(BUILD_DIR) || true
 endif
 else
 # --- Linux / Mac ---
 	-$(RM) $(OBJ_FILES)
 	-$(RM) $(BIN_DIR)/$(EXEC)
+	-$(RMDIR) $(OBJ_DIR) || true
+	-$(RMDIR) $(BIN_DIR) || true
+	-$(RMDIR) $(BUILD_DIR) || true
 endif
 	@echo "Archivos compilados eliminados."
 
