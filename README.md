@@ -63,9 +63,13 @@ Esta versión maneja grafos no completos, verificando primero si existe un circu
 - Soporte para grafos de 4 a 9 nodos
 
 ### Compilacion y ejecucion
-
+para compilar
 ```bash
 make
+```
+para ejecutar
+```bash
+make run
 ```
 
 para limpiar archivos objeto y ejecutable:
@@ -157,7 +161,7 @@ Las condiciones son:
 ### Uso y recomendaciones (variante B)
 
 - Siempre ejecutar:
-  - `pvv start N` (N >= número de nodos necesario según mayor letra)
+  - `pvv start <num_ciudades>`
   - `pvv read <archivo>`
   - `pvv graph` para inspeccionar la representación
 - Si `read` falla por "índice fuera de rango", aumentar N en `start`.

@@ -68,7 +68,7 @@ char index_a_char(int index)
     {
         return (char)('A' + index); 
     }
-    return '?'; // Carácter de error si el índice es inválido
+    return '?'; // Carácter de error si el indice es inválido
 }
 
 
@@ -83,6 +83,7 @@ int inicializar_grafo(Grafo* grafo, int vertices)
     if (grafo->listas_adyacencia == NULL) 
     {
         fprintf(stderr, "Error: Falla al asignar memoria para las listas de adyacencia.\n");
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR
     }
     //Ok inicializamos las listas de adyacencia como NULL
@@ -91,6 +92,7 @@ int inicializar_grafo(Grafo* grafo, int vertices)
         grafo->listas_adyacencia[i] = NULL;
     }
     printf("Grafo inicializado con %d ciudades.\n", vertices);
+    grafo->estado = GRAFO_INICIALIZADO;
     return 0;
 }
 Nodo* crear_nodo(int destino, int distancia)
@@ -144,14 +146,17 @@ int crear_camino_in_out(Grafo* grafo, int distancia, int origen, int destino)
 
 int construir_grafo(Grafo* grafo, const char* txt)
 {
-    if (grafo == NULL || txt == NULL) {
-        fprintf(stderr, "Error: argumentos invalidos a construir_grafo.\n");
+    if (grafo == NULL || txt == NULL) 
+    {
+        fprintf(stderr, "Error: argumentos invalidos a construir grafo.\n");
+        grafo->estado = GRAFO_ERR;
         return -1;
     }
     FILE* archivo = fopen(txt, "r");
     if (archivo == NULL) 
     {
         fprintf(stderr, "Error: No se pudo abrir el archivo %s.\n", txt);
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR al abrir el archivo
     }
     char c_origen, c_destino;
@@ -165,20 +170,24 @@ int construir_grafo(Grafo* grafo, const char* txt)
         {
             fprintf(stderr, "Error Linea %d: caracter de ciudad invalido: '%c' '%c'\n", linea, c_origen, c_destino);
             fclose(archivo);
+            grafo->estado = GRAFO_ERR;
             return -1;
         }
         if (origen < 0 || origen >= grafo->num_ciudades || destino < 0 || destino >= grafo->num_ciudades) 
         {
             fprintf(stderr, "Error Linea %d: indices fuera de rango (A->0): origen=%d destino=%d num_ciudades=%d\n", linea, origen, destino, grafo->num_ciudades);
             fclose(archivo);
+            grafo->estado = GRAFO_ERR;
             return -1;
         }
         if (crear_camino_in_out(grafo, distancia, origen, destino) != 0) 
         {
             fclose(archivo);
+            grafo->estado = GRAFO_ERR;
             return -1; // ERROR al crear el camino
         }
     }
+    grafo->estado = GRAFO_LEIDO;
     fclose(archivo);
     return 0;
 }
@@ -222,35 +231,38 @@ int verificar_hamiltoniano(Grafo* grafo)
     if(no_es_conexo(grafo))
     {
         printf("No existe un ciclo hamiltoniano en el grafo, ya que no es conexo.\n");
+        grafo->estado = GRAFO_NO_HAMILTONIANO;
         return 0; // No existe ciclo hamiltoniano
     }
     if(tiene_grado_invalido(grafo))
     {
         printf("No existe un ciclo hamiltoniano en el grafo, ya que posee un nodo con grado menor a 2.\n");
+        grafo->estado = GRAFO_NO_HAMILTONIANO;
         return 0; // No existe ciclo hamiltoniano
     }
     if(condicion_necesaria_de_corte(grafo))
     {
         printf("No existe un ciclo hamiltoniano en el grafo, ya que no cumple la condicion necesaria de corte de Tutte de G-S <= |S|.\n");
+        grafo->estado = GRAFO_NO_HAMILTONIANO;
         return 0; // No existe ciclo hamiltoniano
     }
     if(backtracking_para_hamilton(grafo) == 0)
     {
         printf("No existe un ciclo hamiltoniano en el grafo, ya que no se encontro ninguna ruta valida que cumpla con las condiciones.\n");
+        grafo->estado = GRAFO_NO_HAMILTONIANO;
         return 0; // No existe ciclo hamiltoniano
     }
     printf("Se ha encontrado un ciclo hamiltoniano de menor coste en el grafo, la ruta es:\n");
-    for (int i = 0; i <= grafo->num_ciudades; i++) {
-    printf("%c", index_a_char(mejor_ruta_global[i])); // Imprimimos la ciudad
-    
-    // Verificamos si NO es el último elemento para imprimir el separador " -> "
-    if (i < grafo->num_ciudades) 
+    for (int i = 0; i <= grafo->num_ciudades; i++) 
     {
+        printf("%c", index_a_char(mejor_ruta_global[i])); // Imprimimos la ciudad
+        if (i < grafo->num_ciudades) 
+        {
         printf(" -> ");
+        }
     }
-    
-}   
     printf("\nCosto total: %d\n", mejor_costo_global);
+    grafo->estado = GRAFO_HAMILTONIANO;
     return 1; // 1 si existe, 0 si no existe
 }
 int no_es_conexo(Grafo* grafo)
@@ -263,6 +275,7 @@ int no_es_conexo(Grafo* grafo)
     if (visitado == NULL)
     {
         fprintf(stderr, "Error: Falla al asignar memoria para el arreglo de visitados.\n");
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR
     }
     //Para verificar la conexidad usamos DFS (Depth-First Search)
@@ -306,6 +319,7 @@ int condicion_necesaria_de_corte(Grafo* grafo)//Condicion de Tutte para grafos h
     if (s == NULL)
     {
         fprintf(stderr, "Error: Falla al asignar memoria para el arreglo S.\n");
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR
     }
 
@@ -346,6 +360,7 @@ int contar_conjunto_g_menos_s(Grafo* grafo, int* s)
     if (visitado == NULL)
     {
         fprintf(stderr, "Error: Falla al asignar memoria para el arreglo de visitados.\n");
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR
     }
     //Marcaremos los nodos S como visitados para calcular G-S
@@ -435,6 +450,7 @@ int backtracking_para_hamilton(Grafo* grafo)
     if (visitado == NULL)
     {
         fprintf(stderr, "Error: Falla al asignar memoria para el arreglo de visitados.\n");
+        grafo->estado = GRAFO_ERR;
         return -1; // ERROR
     }
     int origen = 0; // Empezamos desde la ciudad 0
