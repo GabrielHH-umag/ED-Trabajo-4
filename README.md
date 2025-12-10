@@ -97,13 +97,13 @@ cada linea debe contener un enlace con el formato:
 
 ejemplo (ruta.txt):
 ```
-a b 15
-a c 10
-b c 25
-b e 15
-c d 20
-c e 16
-d e 30
+A B 15
+A C 10
+B C 25
+B E 15
+C D 20
+C E 16
+D E 30
 ```
 
 - los nodos se identifican con letras (a, b, c, etc.)
@@ -124,13 +124,6 @@ si existe un circuito valido, explora todas las permutaciones posibles mediante 
 - calcula el costo total de cada ruta
 - mantiene la ruta de costo minimo
 - aplica poda cuando el costo parcial supera el minimo actual
-
-## Gestion de memoria
-
-- asignacion dinamica de matrices y arreglos
-- liberacion apropiada de memoria en todas las rutas de ejecucion
-- manejo de errores en asignaciones fallidas
-- sin fugas de memoria (verificable con valgrind)
 
 ## Limitaciones
 
