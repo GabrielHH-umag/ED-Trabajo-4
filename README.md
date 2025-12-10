@@ -8,7 +8,9 @@ Integrantes:
 - Felipe
 
 ## Resumen
-Repositorio con dos variantes de la implementación del Problema del Vendedor Viajante (TSP) en C. Mantener y compilar la variante deseada entrando en su carpeta y ejecutando `make`.
+Repositorio con dos variantes de la implementación del Problema del Vendedor Viajante (TSP) en C. Mantener y compilar la variante deseada entrando en su carpeta y ejecutando make.
+
+Nota de entrega: La versión a entregar es la variante B (ver_B_bactraking_como_ultimo_recurso).
 
 ## Organización actual
 - ver_A_con_backtraking_inmediato/
