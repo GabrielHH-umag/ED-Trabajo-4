@@ -1,6 +1,6 @@
 # Tarea 4 — Estructura de datos y algoritmos
 
-Grupo: Grupo 4  
+Grupo: Grupo 2
 Integrantes:
 - Gabriel
 - Luis
